@@ -20,6 +20,12 @@ be found at <https://hexdocs.pm/discord_bridge>.
 * mix deps.get # gets the dependencies
 * mix deps.compile # compiles dependencies
 * mix compile
+
+## Setting up the database
+* mix ecto.create # do this only once
+* mix ecto.migrate # anytime the db changes
+
+## Running the bot under repl
 * iex -S mix # runs the bot under the repl
 
 ## Inviting the bot that Ellyse is running
