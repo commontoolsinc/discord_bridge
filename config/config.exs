@@ -9,4 +9,5 @@ config :discord_bridge, DiscordBridge.Repo,
   pool_size: 5
 
 config :discord_bridge,
-  ecto_repos: [DiscordBridge.Repo]
+  ecto_repos: [DiscordBridge.Repo],
+  api_port: 8080

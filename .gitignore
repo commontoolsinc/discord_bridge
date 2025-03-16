@@ -24,3 +24,6 @@ discord_bridge-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# SQLite database files
+/priv/discord_bridge.db*
