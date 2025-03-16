@@ -8,7 +8,8 @@ defmodule DiscordBridge.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      DiscordBridge.Consumer,
+      DiscordBridge.Repo,
+      DiscordBridge.Consumer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

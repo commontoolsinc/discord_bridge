@@ -18,7 +18,8 @@ be found at <https://hexdocs.pm/discord_bridge>.
 
 ## Running the bot
 * mix deps.get # gets the dependencies
-* mix deps.compile # compiles code
+* mix deps.compile # compiles dependencies
+* mix compile
 * iex -S mix # runs the bot under the repl
 
 ## Inviting the bot that Ellyse is running
