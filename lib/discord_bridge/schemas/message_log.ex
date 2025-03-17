@@ -3,20 +3,20 @@ defmodule DiscordBridge.Schemas.MessageLog do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-    id: integer(),
-    timestamp: DateTime.t(),
-    user_id: String.t(),
-    user_name: String.t(),
-    channel_id: String.t(),
-    content: String.t(),
-    message_id: String.t(),
-    guild_id: String.t() | nil,
-    mentions: [String.t()],
-    referenced_message_id: String.t() | nil,
-    thread_id: String.t() | nil,
-    inserted_at: NaiveDateTime.t(),
-    updated_at: NaiveDateTime.t()
-  }
+          id: integer(),
+          timestamp: DateTime.t(),
+          user_id: String.t(),
+          user_name: String.t(),
+          channel_id: String.t(),
+          content: String.t(),
+          message_id: String.t(),
+          guild_id: String.t() | nil,
+          mentions: [String.t()],
+          referenced_message_id: String.t() | nil,
+          thread_id: String.t() | nil,
+          inserted_at: NaiveDateTime.t(),
+          updated_at: NaiveDateTime.t()
+        }
 
   schema "message_logs" do
     field(:timestamp, :utc_datetime)

@@ -2,32 +2,62 @@ defmodule DiscordBridge.API.MessageController do
   import Plug.Conn
   require Logger
   alias DiscordBridge.Services.MessageService
+  alias DiscordBridge.Services.LastMessageTimeService
   alias DiscordBridge.Schemas.MessageLog
+  alias DiscordBridge.Schemas.LastMessageTime
   alias Plug.Conn
 
   @type timestamp_result :: {:ok, DateTime.t()} | :all | {:error, atom() | String.t()}
+  @type requestor_id :: LastMessageTime.requestor_id()
 
   @doc """
   Handler for GET /api/messages
-  Optional query parameter: since (ISO8601 timestamp)
-  Returns all messages since the provided timestamp, or all messages if no timestamp provided
+  Required query parameter: requestor_id - Identifier for the client requesting messages
+  Optional query parameter: since (ISO8601 timestamp) - Only return messages after this time
+
+  If since is not provided, returns messages since the last request for this requestor_id
   """
   @spec get_messages(Conn.t()) :: Conn.t()
   def get_messages(%Conn{params: params} = conn) do
+    requestor_id = params["requestor_id"]
     since_param = params["since"]
 
-    case parse_timestamp(since_param) do
-      {:ok, %DateTime{} = timestamp} ->
-        messages = MessageService.get_messages_since(timestamp)
-        send_json_response(conn, 200, format_messages(messages))
+    if is_nil(requestor_id) or requestor_id == "" do
+      send_json_response(conn, 400, %{error: "Missing required parameter: requestor_id"})
+    else
+      case parse_timestamp(since_param) do
+        {:ok, %DateTime{} = timestamp} ->
+          # When timestamp is provided, get messages since that time
+          messages = MessageService.get_messages_since(timestamp)
 
-      :all ->
-        # If no valid timestamp provided, return all messages using a very old date
-        messages = MessageService.get_messages_since(DateTime.from_unix!(0))
-        send_json_response(conn, 200, format_messages(messages))
+          # Update the last message time for this requestor if there are messages
+          if messages != [] do
+            latest_timestamp =
+              messages
+              |> Enum.map(& &1.timestamp)
+              |> Enum.max(DateTime)
 
-      {:error, reason} ->
-        send_json_response(conn, 400, %{error: "Invalid timestamp format: #{reason}"})
+            # Update but don't crash if update fails
+            _ = LastMessageTimeService.update_last_message_time(requestor_id, latest_timestamp)
+          end
+
+          send_json_response(conn, 200, format_messages(messages))
+
+        :all ->
+          # If no valid timestamp provided, get messages since last request for this requestor
+          case LastMessageTimeService.get_messages_since_last(requestor_id) do
+            {:ok, messages} ->
+              send_json_response(conn, 200, format_messages(messages))
+
+            {:error, reason} ->
+              send_json_response(conn, 500, %{
+                error: "Failed to update last message time: #{inspect(reason)}"
+              })
+          end
+
+        {:error, reason} ->
+          send_json_response(conn, 400, %{error: "Invalid timestamp format: #{reason}"})
+      end
     end
   end
 

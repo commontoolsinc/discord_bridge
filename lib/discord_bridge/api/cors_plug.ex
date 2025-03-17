@@ -2,12 +2,12 @@ defmodule DiscordBridge.API.CORSPlug do
   @moduledoc """
   A plug for adding CORS headers to responses
   """
-  
+
   import Plug.Conn
-  
+
   @spec init(Keyword.t()) :: Keyword.t()
   def init(options), do: options
-  
+
   @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
   def call(%Plug.Conn{} = conn, _opts) do
     conn

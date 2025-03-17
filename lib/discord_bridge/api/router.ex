@@ -14,7 +14,7 @@ defmodule DiscordBridge.API.Router do
   get "/api/messages" do
     MessageController.get_messages(conn)
   end
-  
+
   # Handle OPTIONS requests for CORS preflight
   options "/api/messages" do
     conn
@@ -24,8 +24,8 @@ defmodule DiscordBridge.API.Router do
 
   # Fallback for all other routes
   match _ do
-      conn
-      |> put_resp_content_type("application/json")
-      |> send_resp(404, Jason.encode!(%{error: "Not found"}))
+    conn
+    |> put_resp_content_type("application/json")
+    |> send_resp(404, Jason.encode!(%{error: "Not found"}))
   end
 end

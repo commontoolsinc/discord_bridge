@@ -44,14 +44,20 @@ The bot includes a REST API that allows you to retrieve messages stored in the d
 Returns messages from the database, optionally filtered by a timestamp.
 
 **Query Parameters:**
+- `requestor_id` (required): Identifier for the client requesting messages. Used to track which messages have been seen.
 - `since` (optional): ISO8601 timestamp (e.g., "2025-03-16T00:00:00Z"). If provided, only returns messages after this timestamp. All times are UTC.
+
+When `since` is not provided, the API returns messages since the last request for this specific `requestor_id`.
 
 **Example Requests:**
 
 ```bash
-# Get all messages
-curl "http://localhost:4000/api/messages"
+# Get all messages for a new requestor
+curl "http://localhost:4000/api/messages?requestor_id=client1&since=1970-01-01T00:00:00Z"
 
 # Get messages since a specific date
-curl "http://localhost:4000/api/messages?since=2025-03-16T12:00:00Z"
+curl "http://localhost:4000/api/messages?requestor_id=client1&since=2025-03-16T12:00:00Z"
+
+# Get only new messages since last request
+curl "http://localhost:4000/api/messages?requestor_id=client1"
 ```
