@@ -7,8 +7,8 @@ defmodule DiscordBridge.ChannelWorker do
   use GenServer
   require Logger
 
-  # 30 seconds interval for periodic checks
-  @check_interval 30_000
+  # seconds interval for periodic checks
+  @check_interval 5_000
 
   # number of messages we should fetch at once
   @fetch_limit 100
@@ -103,6 +103,10 @@ defmodule DiscordBridge.ChannelWorker do
         {:ok, _} ->
           Logger.debug("logged message id #{msg.id}")
 
+        {:error, %Ecto.Changeset{errors: [message_id: {_, [constraint: :unique, constraint_name: _]}]}} ->
+          # Message already exists in the database, which is fine
+          Logger.debug("message id #{msg.id} already exists in database")
+          
         {:error, reason} ->
           Logger.error("failed logging message id #{msg.id}, reason=#{inspect(reason)}")
       end

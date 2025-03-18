@@ -95,7 +95,7 @@ defmodule DiscordBridge.API.MessageController do
   defp format_messages(messages) when is_list(messages) do
     Enum.map(messages, fn %MessageLog{} = message ->
       %{
-        id: message.id,
+        id: message.message_id, # Use message_id as id for backward compatibility
         timestamp: message.timestamp,
         user_id: message.user_id,
         user_name: message.user_name,

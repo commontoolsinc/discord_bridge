@@ -3,13 +3,12 @@ defmodule DiscordBridge.Schemas.MessageLog do
   import Ecto.Changeset
 
   @type t :: %__MODULE__{
-          id: integer(),
+          message_id: String.t(),
           timestamp: DateTime.t(),
           user_id: String.t(),
           user_name: String.t(),
           channel_id: String.t(),
           content: String.t(),
-          message_id: String.t(),
           guild_id: String.t() | nil,
           mentions: [String.t()],
           referenced_message_id: String.t() | nil,
@@ -18,13 +17,13 @@ defmodule DiscordBridge.Schemas.MessageLog do
           updated_at: NaiveDateTime.t()
         }
 
+  @primary_key {:message_id, :string, []}
   schema "message_logs" do
     field(:timestamp, :utc_datetime)
     field(:user_id, :string)
     field(:user_name, :string)
     field(:channel_id, :string)
     field(:content, :string)
-    field(:message_id, :string)
     field(:guild_id, :string)
     field(:mentions, {:array, :string}, default: [])
     field(:referenced_message_id, :string)
@@ -40,5 +39,6 @@ defmodule DiscordBridge.Schemas.MessageLog do
     message_log
     |> cast(attrs, @required_fields ++ @optional_fields)
     |> validate_required(@required_fields)
+    |> unique_constraint(:message_id, name: "message_logs_message_id_index")
   end
 end
