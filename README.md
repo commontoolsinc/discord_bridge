@@ -3,6 +3,9 @@
 This bot can take messages from Discord and serve them to a [charm](https://github.com/commontoolsinc/labs).
 Still work in progress.
 
+## TODO
+* change message log schema to make messsage id the unique key
+
 ## Installation
 
 Create a Discord Bot on [Discord's Developer website](https://discord.com/developers/applications).
