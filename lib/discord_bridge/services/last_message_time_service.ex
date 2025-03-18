@@ -80,10 +80,7 @@ defmodule DiscordBridge.Services.LastMessageTimeService do
 
       messages ->
         # Get the latest message timestamp
-        latest_timestamp =
-          messages
-          |> Enum.map(& &1.timestamp)
-          |> Enum.max(DateTime)
+        latest_timestamp = List.last(messages).timestamp
 
         # Update the last message timestamp and propagate any errors
         case update_last_message_time(requestor_id, latest_timestamp) do

@@ -38,7 +38,16 @@ defmodule DiscordBridge.API.MessageController do
               |> Enum.max(DateTime)
 
             # Update but don't crash if update fails
-            _ = LastMessageTimeService.update_last_message_time(requestor_id, latest_timestamp)
+            {:ok, _last_msg} =
+              LastMessageTimeService.update_last_message_time(requestor_id, latest_timestamp)
+
+            Logger.debug(
+              "MessageController.get_messages: got #{length(messages)} new messages since #{inspect(timestamp)}"
+            )
+          else
+            Logger.debug(
+              "MessageController.get_messages: no new messages since #{inspect(timestamp)}"
+            )
           end
 
           send_json_response(conn, 200, format_messages(messages))
@@ -47,9 +56,17 @@ defmodule DiscordBridge.API.MessageController do
           # If no valid timestamp provided, get messages since last request for this requestor
           case LastMessageTimeService.get_messages_since_last(requestor_id) do
             {:ok, messages} ->
+              Logger.debug(
+                "MessageController.get_messages: no since passed, got #{length(messages)} new messages"
+              )
+
               send_json_response(conn, 200, format_messages(messages))
 
             {:error, reason} ->
+              Logger.debug(
+                "MessageController.get_messages: no since passed, error getting messages: #{inspect(reason)}"
+              )
+
               send_json_response(conn, 500, %{
                 error: "Failed to update last message time: #{inspect(reason)}"
               })
