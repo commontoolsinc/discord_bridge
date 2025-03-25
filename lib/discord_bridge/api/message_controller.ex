@@ -11,7 +11,7 @@ defmodule DiscordBridge.API.MessageController do
   @type requestor_id :: LastMessageTime.requestor_id()
 
   @default_max_historical_messages 1000
-  
+
   @doc """
   Handler for GET /api/messages
   Required query parameter: requestor_id - Identifier for the client requesting messages
@@ -61,6 +61,7 @@ defmodule DiscordBridge.API.MessageController do
               Logger.debug(
                 "MessageController.get_messages: no since passed, got #{length(messages)} new messages"
               )
+
               max_num_msgs = get_max_historical_messages()
               limited_messages = Enum.take(messages, -1 * max_num_msgs)
               send_json_response(conn, 200, format_messages(limited_messages))
@@ -98,7 +99,8 @@ defmodule DiscordBridge.API.MessageController do
   defp format_messages(messages) when is_list(messages) do
     Enum.map(messages, fn %MessageLog{} = message ->
       %{
-        id: message.message_id, # Use message_id as id for backward compatibility
+        # Use message_id as id for backward compatibility
+        id: message.message_id,
         timestamp: message.timestamp,
         user_id: message.user_id,
         user_name: message.user_name,
@@ -124,7 +126,10 @@ defmodule DiscordBridge.API.MessageController do
   # Get the port from config or use default
   @spec get_max_historical_messages() :: integer()
   defp get_max_historical_messages do
-    Application.get_env(:discord_bridge, :max_historical_messages, @default_max_historical_messages)
+    Application.get_env(
+      :discord_bridge,
+      :max_historical_messages,
+      @default_max_historical_messages
+    )
   end
-
 end

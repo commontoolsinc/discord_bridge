@@ -103,10 +103,11 @@ defmodule DiscordBridge.ChannelWorker do
         {:ok, _} ->
           Logger.debug("logged message id #{msg.id}")
 
-        {:error, %Ecto.Changeset{errors: [message_id: {_, [constraint: :unique, constraint_name: _]}]}} ->
+        {:error,
+         %Ecto.Changeset{errors: [message_id: {_, [constraint: :unique, constraint_name: _]}]}} ->
           # Message already exists in the database, which is fine
           Logger.debug("message id #{msg.id} already exists in database")
-          
+
         {:error, reason} ->
           Logger.error("failed logging message id #{msg.id}, reason=#{inspect(reason)}")
       end

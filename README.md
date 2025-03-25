@@ -5,6 +5,7 @@ Still work in progress.
 
 ## TODO
 * change message log schema to make messsage id the unique key
+* slash command to start tracking a channel historically instead of declaring in config.exs, this would store the channel list in the database
 
 ## Installation
 

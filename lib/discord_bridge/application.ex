@@ -22,7 +22,7 @@ defmodule DiscordBridge.Application do
     {:ok, supervisor_pid} = Supervisor.start_link(children, opts)
 
     # test getting channel history
-    #DiscordBridge.ChannelSupervisor.start_channel_worker(1232452732963655720, 1232453747783761971)
+    # DiscordBridge.ChannelSupervisor.start_channel_worker(1232452732963655720, 1232453747783761971)
 
     {:ok, supervisor_pid}
   end
