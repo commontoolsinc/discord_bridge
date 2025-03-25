@@ -47,11 +47,9 @@ defmodule DiscordBridge.Services.MessageService do
     |> Repo.insert()
     |> case do
       {:ok, log} ->
-        Logger.debug("Message logged to database: #{log.message_id}")
         {:ok, log}
 
       {:error, changeset} ->
-        Logger.error("Failed to log message: #{inspect(changeset.errors)}")
         {:error, changeset}
     end
   end

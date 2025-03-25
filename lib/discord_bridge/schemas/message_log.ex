@@ -8,7 +8,7 @@ defmodule DiscordBridge.Schemas.MessageLog do
           user_id: String.t(),
           user_name: String.t(),
           channel_id: String.t(),
-          content: String.t(),
+          content: String.t() | nil,
           guild_id: String.t() | nil,
           mentions: [String.t()],
           referenced_message_id: String.t() | nil,
@@ -32,8 +32,8 @@ defmodule DiscordBridge.Schemas.MessageLog do
     timestamps()
   end
 
-  @required_fields [:timestamp, :user_id, :user_name, :channel_id, :content, :message_id]
-  @optional_fields [:guild_id, :mentions, :referenced_message_id, :thread_id]
+  @required_fields [:timestamp, :user_id, :user_name, :channel_id, :message_id]
+  @optional_fields [:content, :guild_id, :mentions, :referenced_message_id, :thread_id]
 
   def changeset(message_log, attrs) do
     message_log

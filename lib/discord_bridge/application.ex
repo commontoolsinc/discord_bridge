@@ -21,8 +21,11 @@ defmodule DiscordBridge.Application do
     opts = [strategy: :one_for_one, name: DiscordBridge.Supervisor]
     {:ok, supervisor_pid} = Supervisor.start_link(children, opts)
 
-    # test getting channel history
-    # DiscordBridge.ChannelSupervisor.start_channel_worker(1232452732963655720, 1232453747783761971)
+    # start the channel workers to get the historical messages
+    Application.get_env(:discord_bridge, :channels, [])
+    |> Enum.each(fn {guild_id, channel_id} ->
+      DiscordBridge.ChannelSupervisor.start_channel_worker(guild_id, channel_id)
+    end)
 
     {:ok, supervisor_pid}
   end

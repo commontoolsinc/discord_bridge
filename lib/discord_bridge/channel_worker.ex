@@ -8,13 +8,13 @@ defmodule DiscordBridge.ChannelWorker do
   require Logger
 
   # seconds interval for periodic checks
-  @check_interval 5_000
+  @check_interval 3000
 
   # number of messages we should fetch at once
-  @fetch_limit 50
+  @fetch_limit 100
 
   # how many messages do we want to fetch?
-  @total_fetch 500
+  @total_fetch 1000
 
   defstruct [:guild_id, :channel_id, :last_fetched_msgid, total_fetched: 0]
 
@@ -39,7 +39,7 @@ defmodule DiscordBridge.ChannelWorker do
 
   @impl true
   def init({guild_id, channel_id}) do
-    Logger.debug("Starting channel worker for guild=#{guild_id}, channel=#{channel_id}")
+    Logger.info("Starting channel worker for guild=#{guild_id}, channel=#{channel_id}")
 
     # schedule regular checks
     schedule_check()
@@ -55,15 +55,13 @@ defmodule DiscordBridge.ChannelWorker do
 
   @impl true
   def handle_info(:check_channel, %__MODULE__{last_fetched_msgid: nil} = state) do
-    Logger.debug(
-      "Periodic check for guild=#{state.guild_id}, channel=#{state.channel_id} (#{state.total_fetched} messages fetched so far)"
-    )
-
     # get the latest message in the channel
-    {:ok, [%Nostrum.Struct.Message{id: msg_id}]} =
+    {:ok, [%Nostrum.Struct.Message{id: msg_id, timestamp: msg_timestamp}]} =
       Nostrum.Api.Channel.messages(state.channel_id, 1)
 
-    Logger.debug("got message: #{inspect(msg_id)}")
+    Logger.info(
+      "channel_worker: got most recent message for channel #{inspect(state.channel_id)}, msg_id=#{inspect(msg_id)}, timestamp=#{inspect(msg_timestamp)}"
+    )
 
     schedule_check()
 
@@ -72,36 +70,40 @@ defmodule DiscordBridge.ChannelWorker do
 
   def handle_info(:check_channel, %__MODULE__{total_fetched: total_fetched} = state)
       when total_fetched > @total_fetch do
-    Logger.debug("fetched #{total_fetched} messages in total, ending")
+    Logger.info(
+      "fetched #{total_fetched} messages in total, channel_id=#{state.channel_id} ... ending"
+    )
+
     {:stop, :shutdown, state}
   end
 
   def handle_info(:check_channel, %__MODULE__{} = state) do
-    Logger.debug(
-      "Periodic check for guild=#{state.guild_id}, channel=#{state.channel_id} (#{state.total_fetched} messages fetched so far)"
-    )
-
     # the first message on the list will be the "newest" and the last will be the oldest message
-    message_list =
+    {message_list, status} =
       case Nostrum.Api.Channel.messages(
              state.channel_id,
              @fetch_limit,
              {:before, state.last_fetched_msgid}
            ) do
         {:ok, message_list} ->
-          Logger.debug("got message list, len=#{length(message_list)}")
-          message_list
+          Logger.debug(
+            "channel_worker: got message list, channel=#{state.channel_id}, len=#{length(message_list)}"
+          )
+
+          {message_list, :ok}
 
         {:error, reason} ->
           Logger.error("got error: #{inspect(reason)}")
-          []
+          {[], :error}
       end
 
     # store these messages into the database
     Enum.each(message_list, fn msg ->
       case MessageService.log_message(msg) do
         {:ok, _} ->
-          Logger.debug("logged message id #{msg.id}")
+          Logger.debug(
+            "channel_worker: logged message - channelid=#{state.channel_id} msg_id=#{msg.id}"
+          )
 
         {:error,
          %Ecto.Changeset{errors: [message_id: {_, [constraint: :unique, constraint_name: _]}]}} ->
@@ -115,18 +117,34 @@ defmodule DiscordBridge.ChannelWorker do
 
     # update the last message fetch id
     last_msg_id =
-      message_list
-      |> Enum.map(fn elem -> elem.id end)
-      |> List.last()
+      case message_list do
+        [] ->
+          state.last_fetched_msgid
 
-    schedule_check()
+        l ->
+          Enum.map(l, fn elem -> elem.id end)
+          |> List.last()
+      end
 
-    {:noreply,
-     %{
-       state
-       | last_fetched_msgid: last_msg_id,
-         total_fetched: state.total_fetched + length(message_list)
-     }}
+    new_state = %{
+      state
+      | last_fetched_msgid: last_msg_id,
+        total_fetched: state.total_fetched + length(message_list)
+    }
+
+    Logger.info(
+      "channel_worker: fetched #{length(message_list)} messages for guild=#{new_state.guild_id}, channel=#{new_state.channel_id} (#{new_state.total_fetched} messages fetched so far)"
+    )
+
+    case {status, message_list} do
+      {:ok, []} ->
+        Logger.info("channel_worker: channel_id=#{new_state.channel_id} fetched all messages")
+        {:stop, :shutdown, state}
+
+      _ ->
+        schedule_check()
+        {:noreply, new_state}
+    end
   end
 
   # Private functions

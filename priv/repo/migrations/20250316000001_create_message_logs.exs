@@ -8,7 +8,7 @@ defmodule DiscordBridge.Repo.Migrations.CreateMessageLogs do
       add :user_id, :string, null: false
       add :user_name, :string, null: false
       add :channel_id, :string, null: false
-      add :content, :text, null: false
+      add :content, :text
       add :guild_id, :string
       add :mentions, :text # We'll store as JSON
       add :referenced_message_id, :string

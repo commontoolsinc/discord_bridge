@@ -6,7 +6,10 @@ config :nostrum,
 
 config :discord_bridge, DiscordBridge.Repo,
   database: "priv/discord_bridge.db",
-  pool_size: 5
+  pool_size: 5,
+  log: false
+
+config :logger, level: :info
 
 config :discord_bridge,
   ecto_repos: [DiscordBridge.Repo],
@@ -15,6 +18,7 @@ config :discord_bridge,
   max_historical_message: 1000,
   # these are the channels that we are keeping track of historically
   channels: [
+    {1_232_452_732_963_655_720, 1_352_101_032_628_588_575},
     {1_232_452_732_963_655_720, 1_232_832_845_165_232_312},
     {1_232_452_732_963_655_720, 1_232_453_747_783_761_971},
     {1_232_452_732_963_655_720, 1_335_044_705_960_067_222},
