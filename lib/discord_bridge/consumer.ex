@@ -30,7 +30,7 @@ defmodule DiscordBridge.Consumer do
       "new message: timestamp=#{timestamp}, user #{author.global_name}/#{author.id} wrote in channel <##{channel_id}>, content=#{content}, thread=#{inspect(thread)}"
 
     Logger.debug(log_message)
-    Nostrum.Api.Message.create(@logger_channel_id, log_message)
+    # Nostrum.Api.Message.create(@logger_channel_id, log_message)
 
     # Save the message to the database
     case MessageService.log_message(msg) do
