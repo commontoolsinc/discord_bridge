@@ -4,9 +4,6 @@ defmodule DiscordBridge.Consumer do
   require Logger
   alias DiscordBridge.Services.MessageService
 
-  # for debugging where the bot logs messages
-  @logger_channel_id 1_318_255_745_376_190_518
-
   def handle_event({:READY, _ready_event, _ws_state}) do
     Logger.debug("#{__MODULE__}: got ready event")
     register_guild_commands()
