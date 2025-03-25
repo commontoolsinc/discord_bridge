@@ -11,10 +11,10 @@ defmodule DiscordBridge.ChannelWorker do
   @check_interval 5_000
 
   # number of messages we should fetch at once
-  @fetch_limit 100
+  @fetch_limit 50
 
   # how many messages do we want to fetch?
-  @total_fetch 2000
+  @total_fetch 500
 
   defstruct [:guild_id, :channel_id, :last_fetched_msgid, total_fetched: 0]
 

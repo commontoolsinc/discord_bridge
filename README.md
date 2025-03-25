@@ -19,7 +19,7 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at <https://hexdocs.pm/discord_bridge>.
 
-## Running the bot
+## Building the bot
 * mix deps.get # gets the dependencies
 * mix deps.compile # compiles dependencies
 * mix compile
@@ -28,7 +28,7 @@ be found at <https://hexdocs.pm/discord_bridge>.
 * mix ecto.create # do this only once
 * mix ecto.migrate # anytime the db changes
 
-## Running the bot under repl
+## Running the bot under REPL
 * iex -S mix # runs the bot under the repl
 
 ## Inviting the bot that Ellyse is running
@@ -39,6 +39,7 @@ It may not be running all the time at the moment until we decide it's "working" 
 ## REST API
 
 The bot includes a REST API that allows you to retrieve messages stored in the database. The API runs on port 8080 by default. You can edit config/config.exs to modify this port.
+With charms, client fetches want to be https. you can run `sudo tailscale serve --https=443 localhost:8080`
 
 ### API Endpoints
 

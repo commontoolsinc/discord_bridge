@@ -10,4 +10,6 @@ config :discord_bridge, DiscordBridge.Repo,
 
 config :discord_bridge,
   ecto_repos: [DiscordBridge.Repo],
-  api_port: 8080
+  api_port: 8080,
+  # how many messages should we fetch when we start up from *each channel*
+  max_historical_message: 1000
